@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP DDS </title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                🚀 TP DDS
+            </div>
+            <div class="navbar-nav">
+                <div class="nav-item active" onclick="showSection('collection')">
+                    📁 Colección
+                </div>
+                <div class="nav-item" onclick="showSection('endpoints')">
+                    🌐 Endpoints
+                </div>
+                <div class="nav-item" onclick="showSection('variables')">
+                    🔧 Variables
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Analizador de Colecciones de Postman</h1>
+            <p>Carga, explora y prueba tus APIs de forma intuitiva</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Sección de Colección -->
+            <div class="section active" id="collectionSection">
+                <div class="card">
+                    <div class="dropzone" id="dropzone">
+                        <div class="dropzone-content">
+                            <div class="dropzone-icon">📁</div>
+                            <h3>Arrastra tu colección de Postman aquí</h3>
+                            <p>O haz clic para seleccionar un archivo JSON</p>
+                            <button class="btn" onclick="document.getElementById('fileInput').click()">
+                                Seleccionar Archivo
+                            </button>
+                        </div>
+                        <input type="file" id="fileInput" class="file-input" accept=".json" />
+                    </div>
+
+                    <div class="collection-info" id="collectionInfo">
+                        <h3 id="collectionName">Colección Cargada</h3>
+                        <p id="collectionDescription">Descripción de la colección</p>
+                        <div class="collection-stats">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalEndpoints">0</div>
+                                <div class="stat-label">Endpoints</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalFolders">0</div>
+                                <div class="stat-label">Carpetas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="getCount">0</div>
+                                <div class="stat-label">GET</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="postCount">0</div>
+                                <div class="stat-label">POST</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Endpoints -->
+            <div class="section" id="endpointsSection">
+                <div class="endpoints-grid" id="endpointsGrid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px; color: #667eea;">📋 Estructura de Endpoints</h3>
+                        <div class="search-box">
+                            <input type="text" class="search-input" placeholder="🔍 Buscar endpoints..." onkeyup="searchEndpoints(this.value)" />
+                        </div>
+                        <div class="endpoints-sidebar" id="endpointsList">
+                            <div style="text-align: center; color: #6b7280; padding: 40px;">
+                                Carga una colección para ver los endpoints
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="endpoint-detail" id="endpointDetail">
+                            <div style="text-align: center; color: #6b7280; padding: 40px;">
+                                <div style="font-size: 3rem; margin-bottom: 20px;">🌐</div>
+                                <h3>Selecciona un endpoint</h3>
+                                <p>Elige un endpoint de la lista para ver sus detalles y ejecutar peticiones</p>
+                            </div>
+                        </div>
+
+                        <div class="endpoint-detail" id="endpointDetailContent" style="display: none;">
+                            <div class="detail-header">
+                                <span class="method-badge" id="detailMethod">GET</span>
+                                <h3 id="detailName">Endpoint Name</h3>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="requestUrl">URL del Endpoint</label>
+                                <input type="text" id="requestUrl" placeholder="https://api.ejemplo.com/endpoint" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Headers</label>
+                                <div class="headers-container" id="headersContainer">
+                                    <div class="header-row">
+                                        <input type="text" placeholder="Nombre del header" class="header-key" />
+                                        <input type="text" placeholder="Valor del header" class="header-value" />
+                                        <button type="button" class="remove-header-btn" onclick="removeHeaderRow(this)">✕</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="add-header-btn" onclick="addHeaderRow()">+ Agregar Header</button>
+                            </div>
+
+                            <div class="form-group" id="bodyGroup" style="display: none;">
+                                <label for="requestBody">Body (JSON)</label>
+                                <textarea id="requestBody" rows="6" placeholder='{"key": "value"}'></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn" id="executeBtn" onclick="executeRequest()">
+                                    ▶️ Ejecutar Petición
+                                </button>
+                            </div>
+
+                            <div class="loading" id="loading">
+                                <div class="spinner"></div>
+                                <p>Ejecutando petición...</p>
+                            </div>
+
+                            <div class="response-container" id="responseContainer" style="display: none;">
+                                <div class="response-header">
+                                    <h4>Respuesta</h4>
+                                    <span class="status-badge" id="statusBadge">200 OK</span>
+                                </div>
+                                <div class="response-body" id="responseBody"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Variables -->
+            <div class="section" id="variablesSection">
+                <div class="variables-section">
+                    <div class="variables-header">
+                        <h3>🔧 Variables de Entorno</h3>
+                        <button class="btn" onclick="toggleAddVariable()">+ Nueva Variable</button>
+                    </div>
+
+                    <div class="add-variable-section">
+                        <div class="add-variable-form" id="addVariableForm">
+                            <div class="form-row">
+                                <div>
+                                    <label>Nombre</label>
+                                    <input type="text" id="newVariableName" placeholder="baseUrl" />
+                                </div>
+                                <div>
+                                    <label>Valor</label>
+                                    <input type="text" id="newVariableValue" placeholder="https://api.ejemplo.com" />
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn-small" onclick="addVariable()">Agregar</button>
+                                    <button class="btn-small secondary" onclick="toggleAddVariable()">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="variables-grid" id="variablesGrid">
+                        <!-- Las variables se mostrarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+ <script src="./assets/js/script.js"></script>
+</html>
