@@ -77,6 +77,7 @@
           try {
               const jsonData = JSON.parse(e.target.result);
               parsePostmanCollection(jsonData);
+              document.getElementById("btnendpts").click();
           } catch (error) {
               showError('Error al parsear el archivo JSON: ' + error.message);
           }
