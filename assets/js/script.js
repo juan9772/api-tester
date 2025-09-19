@@ -782,3 +782,59 @@
           }
       }
   });
+  // Inicialización
+  document.addEventListener('DOMContentLoaded', function() {
+      // Intenta cargar la clave de API del almacenamiento local
+      environmentVariables.apiKey = localStorage.getItem('postmanApiKey');
+
+      // Carga la colección si la clave de API está disponible
+      if (environmentVariables.apiKey) {
+          loadCollectionFromApi();
+      } else {
+          showApiPrompt();
+      }
+
+      // Funciones para subir el archivo de forma manual
+      setupDropzone();
+      setupFileInput();
+      displayVariables();
+  });
+  function showApiPrompt() {
+      const apiKey = prompt("Por favor, introduce tu clave de API de Postman para sincronizar la colección:");
+      if (apiKey) {
+          environmentVariables.apiKey = apiKey;
+          localStorage.setItem('postmanApiKey', apiKey);
+          loadCollectionFromApi();
+      } else {
+          showError('Clave de API no proporcionada. No se pudo sincronizar la colección.');
+      }
+  }
+  // Esta función permanece igual que en la respuesta anterior
+  async function loadCollectionFromApi() {
+      const { apiKey } = environmentVariables;
+      if (!apiKey) {
+          console.error('API Key o Collection ID no configurados.');
+          return;
+      }
+
+      const url = `https://api.getpostman.com/collections/40975377-e08777f9-2b01-4384-bfcf-656210ca0b4a`;
+      const headers = {
+          'X-Api-Key': apiKey
+      };
+
+      try {
+          const response = await fetch(url, { headers: headers });
+          if (!response.ok) {
+              if (response.status === 401) {
+                  throw new Error('Error de autorización. Verifica tu clave de API.');
+              }
+              throw new Error(`Error HTTP: ${response.status}`);
+          }
+          const jsonData = await response.json();
+          parsePostmanCollection(jsonData.collection);
+          document.getElementById("btnendpts").click();
+          showSuccess('Colección de Postman sincronizada correctamente.');
+      } catch (error) {
+          showError('Error al sincronizar con la API de Postman: ' + error.message);
+      }
+  }
